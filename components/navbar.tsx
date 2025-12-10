@@ -16,6 +16,7 @@ export function Navbar() {
     { label: "Placements", href: "/placements" },
     { label: "Campus Life", href: "/campus-life" },
     { label: "News & Events", href: "/news" },
+    { label: "Student Hub", href: "/student-hub" },
     { label: "Contact", href: "/contact" },
   ]
 
@@ -33,14 +34,18 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                className="px-3 py-2 text-sm font-medium rounded-lg transition-colors text-foreground hover:text-primary hover:bg-secondary/50"
               >
                 {link.label}
               </Link>
             ))}
+          </div>
+
+          {/* Right Side Buttons */}
+          <div className="hidden md:flex items-center gap-2">
             <Link
               href="/admissions"
-              className="ml-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-academic-blue-light transition-colors"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-academic-blue-light transition-all duration-200"
             >
               Apply Now
             </Link>
@@ -59,7 +64,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-colors"
+                className="block px-3 py-2 text-base font-medium rounded-lg transition-colors text-foreground hover:text-primary hover:bg-secondary"
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}

@@ -1,4 +1,8 @@
+"use client"
+
+import { motion } from "framer-motion"
 import type React from "react"
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline"
   size?: "sm" | "md" | "lg"
@@ -6,7 +10,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = "primary", size = "md", children, className = "", ...props }: ButtonProps) {
-  const baseStyles = "font-semibold rounded-lg transition-all duration-200 font-medium"
+  const baseStyles = "font-semibold rounded-lg font-medium"
 
   const sizeStyles = {
     sm: "px-4 py-2 text-sm",
@@ -15,15 +19,20 @@ export function Button({ variant = "primary", size = "md", children, className =
   }
 
   const variantStyles = {
-    primary:
-      "bg-primary text-primary-foreground hover:bg-academic-blue-light shadow-md hover:shadow-lg active:scale-95",
-    secondary: "bg-secondary text-secondary-foreground hover:bg-border shadow-md hover:shadow-lg active:scale-95",
-    outline: "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground active:scale-95",
+    primary: "bg-primary text-primary-foreground hover:bg-academic-blue-light shadow-md hover:shadow-lg",
+    secondary: "bg-secondary text-secondary-foreground hover:bg-border shadow-md hover:shadow-lg",
+    outline: "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground",
   }
 
   return (
-    <button className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`} {...props}>
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
+      className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      {...props}
+    >
       {children}
-    </button>
+    </motion.button>
   )
 }

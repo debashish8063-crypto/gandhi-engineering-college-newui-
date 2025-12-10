@@ -1,100 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Bell, Search } from "lucide-react"
-
-const allAnnouncements = [
-  {
-    id: 1,
-    title: "Semester Exam Schedule Released",
-    category: "Exam",
-    date: "2024-01-15",
-    priority: "high",
-    content:
-      "The final semester exam schedule has been released. Please check the attached document for the complete timetable.",
-    author: "Academic Affairs",
-  },
-  {
-    id: 2,
-    title: "Winter Holiday Notification",
-    category: "Holiday",
-    date: "2024-01-10",
-    priority: "medium",
-    content: "College will remain closed from January 20 to February 2 for winter holidays.",
-    author: "Administration",
-  },
-  {
-    id: 3,
-    title: "Placement Drive - TCS Hiring",
-    category: "Event",
-    date: "2024-01-05",
-    priority: "high",
-    content: "TCS will be conducting campus placements on January 25, 2024. Registration closes on January 20.",
-    author: "Placement Cell",
-  },
-  {
-    id: 4,
-    title: "Campus Maintenance Notice",
-    category: "Notice",
-    date: "2024-01-01",
-    priority: "low",
-    content: "Water supply will be suspended on January 5 from 8 AM to 5 PM for maintenance work.",
-    author: "Facilities",
-  },
-  {
-    id: 5,
-    title: "Library Extended Hours",
-    category: "Notice",
-    date: "2023-12-28",
-    priority: "low",
-    content: "During exam season, the library will remain open till 10 PM on weekdays.",
-    author: "Library",
-  },
-  {
-    id: 6,
-    title: "Hostel Fee Submission",
-    category: "Notice",
-    date: "2023-12-20",
-    priority: "medium",
-    content: "All hostel students must submit their fees by December 31, 2023.",
-    author: "Hostel Administration",
-  },
-  {
-    id: 7,
-    title: "Annual Tech Fest Announcement",
-    category: "Event",
-    date: "2023-12-15",
-    priority: "medium",
-    content: "Register now for the annual tech fest. Last date for registration: January 10, 2024.",
-    author: "Student Activities",
-  },
-  {
-    id: 8,
-    title: "Internship Opportunities",
-    category: "Exam",
-    date: "2023-12-10",
-    priority: "high",
-    content: "Multiple summer internship opportunities are available. Check the placement portal for details.",
-    author: "Placement Cell",
-  },
-]
+import { createClient } from "@/lib/supabase/client"
 
 export default function AnnouncementsPage() {
+  const [announcements, setAnnouncements] = useState<any[]>([])
+  const [filteredAnnouncements, setFilteredAnnouncements] = useState<any[]>([])
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [loading, setLoading] = useState(true)
 
-  const filteredAnnouncements = allAnnouncements.filter((ann) => {
-    const matchesCategory = selectedCategory === "all" || ann.category === selectedCategory
-    const matchesSearch = ann.title.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  useEffect(() => {
+    const loadAnnouncements = async () => {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase
+          .from("notices")
+          .select("*")
+          .eq("is_published", true)
+          .order("created_at", { ascending: false })
+        setAnnouncements(data || [])
+      } catch (error) {
+        console.error("Error loading announcements:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const categories = ["Exam", "Holiday", "Event", "Notice"]
+    loadAnnouncements()
+  }, [])
+
+  useEffect(() => {
+    const filtered = announcements.filter((ann) => {
+      const matchesCategory = selectedCategory === "all" || ann.category === selectedCategory
+      const matchesSearch = ann.title.toLowerCase().includes(searchQuery.toLowerCase())
+      return matchesCategory && matchesSearch
+    })
+    setFilteredAnnouncements(filtered)
+  }, [announcements, selectedCategory, searchQuery])
+
+  const categories = ["academic", "placement", "event", "urgent", "general"]
+
+  if (loading) {
+    return <div className="text-center py-12">Loading announcements...</div>
+  }
 
   return (
     <div className="space-y-6">
@@ -122,7 +77,7 @@ export default function AnnouncementsPage() {
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat} value={cat}>
-                {cat}
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -145,21 +100,21 @@ export default function AnnouncementsPage() {
                       <div className="flex gap-2 flex-shrink-0">
                         <Badge
                           className={
-                            ann.priority === "high"
+                            ann.category === "urgent"
                               ? "bg-error-red"
-                              : ann.priority === "medium"
+                              : ann.category === "placement"
                                 ? "bg-primary"
                                 : "bg-secondary"
                           }
                         >
-                          {ann.category}
+                          {ann.category.charAt(0).toUpperCase() + ann.category.slice(1)}
                         </Badge>
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground mb-3">{ann.content}</p>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground">
                       <span>
-                        {ann.author} • {ann.date}
+                        {ann.posted_by} • {new Date(ann.created_at).toLocaleDateString()}
                       </span>
                       <Button variant="ghost" className="w-full sm:w-auto text-xs h-8 bg-transparent">
                         Read More

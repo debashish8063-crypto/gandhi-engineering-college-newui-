@@ -10,7 +10,6 @@ import { createClient } from "@/lib/supabase/client"
 
 export default function StudentHubDashboard() {
   const [studentData, setStudentData] = useState<any>(null)
-  const [announcements, setAnnouncements] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -25,16 +24,8 @@ export default function StudentHubDashboard() {
           // Fetch student profile
           const { data: student } = await supabase.from("students").select("*").eq("id", user.id).single()
 
-          // Fetch announcements
-          const { data: notices } = await supabase
-            .from("notices")
-            .select("*")
-            .eq("is_published", true)
-            .order("created_at", { ascending: false })
-            .limit(4)
-
           setStudentData({
-            name: (student?.first_name || "") + " " + (student?.last_name || ""),
+            name: student?.first_name + " " + student?.last_name,
             enrollmentNo: student?.student_id,
             branch: student?.department,
             year: `${student?.year} Year`,
@@ -43,8 +34,6 @@ export default function StudentHubDashboard() {
             presentToday: true,
             email: user.email,
           })
-
-          setAnnouncements(notices || [])
         }
       } catch (error) {
         console.error("Error loading student data:", error)
@@ -56,6 +45,7 @@ export default function StudentHubDashboard() {
     loadStudentData()
   }, [])
 
+  // Mock data for charts and announcements
   const attendanceData = [
     { month: "Jul", percentage: 82 },
     { month: "Aug", percentage: 85 },
@@ -70,6 +60,13 @@ export default function StudentHubDashboard() {
     { semester: "Sem 4", sgpa: 8.5 },
     { semester: "Sem 5", sgpa: 8.8 },
     { semester: "Sem 6", sgpa: 8.9 },
+  ]
+
+  const announcements = [
+    { id: 1, title: "Semester Exam Schedule Released", tag: "Exam", date: "2024-01-15", urgent: true },
+    { id: 2, title: "Winter Holiday Notification", tag: "Holiday", date: "2024-01-10", urgent: false },
+    { id: 3, title: "Placement Drive - TCS Hiring", tag: "Event", date: "2024-01-05", urgent: false },
+    { id: 4, title: "Campus Maintenance Notice", tag: "Notice", date: "2024-01-01", urgent: false },
   ]
 
   const feesData = {
@@ -248,26 +245,22 @@ export default function StudentHubDashboard() {
             <CardDescription>Recent updates and notices</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {announcements.length > 0 ? (
-              announcements.map((ann) => (
-                <div
-                  key={ann.id}
-                  className="flex items-start gap-3 p-3 border border-border rounded-lg hover:bg-secondary/50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm">{ann.title}</p>
-                      <Badge variant={ann.category === "urgent" ? "destructive" : "secondary"} className="text-xs">
-                        {ann.category}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{new Date(ann.created_at).toLocaleDateString()}</p>
+            {announcements.map((ann) => (
+              <div
+                key={ann.id}
+                className="flex items-start gap-3 p-3 border border-border rounded-lg hover:bg-secondary/50 transition-colors"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-medium text-sm">{ann.title}</p>
+                    <Badge variant={ann.urgent ? "destructive" : "secondary"} className="text-xs">
+                      {ann.tag}
+                    </Badge>
                   </div>
+                  <p className="text-xs text-muted-foreground">{ann.date}</p>
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No announcements yet</p>
-            )}
+              </div>
+            ))}
             <Button variant="outline" className="w-full text-xs bg-transparent">
               View All Announcements
             </Button>

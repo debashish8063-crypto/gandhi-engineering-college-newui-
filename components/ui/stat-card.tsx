@@ -1,3 +1,7 @@
+"use client"
+
+import { motion } from "framer-motion"
+
 interface StatCardProps {
   number: string | number
   label: string
@@ -6,12 +10,22 @@ interface StatCardProps {
 
 export function StatCard({ number, label, suffix }: StatCardProps) {
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-      <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl cursor-pointer"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+        className="text-4xl md:text-5xl font-bold text-primary mb-2"
+      >
         {number}
         {suffix && <span className="text-2xl">{suffix}</span>}
-      </div>
+      </motion.div>
       <p className="text-center text-muted-foreground font-medium">{label}</p>
-    </div>
+    </motion.div>
   )
 }

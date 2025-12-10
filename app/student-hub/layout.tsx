@@ -1,7 +1,5 @@
 import type React from "react"
 import Link from "next/link"
-import { Bell, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 interface StudentHubLayoutProps {
   children: React.ReactNode
@@ -23,6 +21,16 @@ const navItems = [
 ]
 
 export default function StudentHubLayout({ children }: StudentHubLayoutProps) {
+  const navItems = [
+    { href: "/student-hub", label: "Dashboard", icon: "📊" },
+    { href: "/student-hub/attendance", label: "Attendance", icon: "✓" },
+    { href: "/student-hub/results", label: "Results", icon: "📈" },
+    { href: "/student-hub/announcements", label: "Announcements", icon: "📢" },
+    { href: "/student-hub/fees", label: "Fees", icon: "💳" },
+    { href: "/student-hub/profile", label: "Profile", icon: "👤" },
+    { href: "/student-hub/documents", label: "Documents", icon: "📄" },
+  ]
+
   return (
     <>
       <nav className="sticky top-0 z-40 bg-background border-b border-border">
@@ -38,20 +46,20 @@ export default function StudentHubLayout({ children }: StudentHubLayoutProps) {
             <div className="hidden md:flex items-center gap-1">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <Button variant="ghost" className="gap-2">
+                  <button className="px-3 py-2 text-sm font-medium rounded-lg hover:bg-secondary/50 transition-colors">
                     {item.label}
-                  </Button>
+                  </button>
                 </Link>
               ))}
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon">
-                <Bell className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <LogOut className="w-5 h-5" />
-              </Button>
+              <Link
+                href="/"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              >
+                Back to Main
+              </Link>
             </div>
           </div>
         </div>
